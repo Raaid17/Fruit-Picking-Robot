@@ -17,7 +17,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 double x = 97, y = 105, z = 0;
 double L1 = 105, L2 = 97;
 
-double M1 = 90, M2 = 90, M3 = 170;
+double M1 = 90, M2 = 90, M3 = 170; //Motor angle, adjusted to 90 degree triangle
 int input = 0, stat =0;
 
 void setup() {
@@ -29,13 +29,13 @@ void setup() {
   pwm.begin();
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
   pwm.setPWM(0, 0, angleToPulse(M1));
-  moveToPos(x, y, z, L1);
+  moveToPos(x, y, z, L1); // initialize pos of joint to 90 degree triangle
 
   delay(2000);
 }
 
 void loop() {
-  if (Serial.available()) {
+  if (Serial.available()) { // initialize BLE
     SerialBT.write(Serial.read());
   }
   if (SerialBT.available()) {
@@ -43,7 +43,7 @@ void loop() {
     Serial.write(input);
     Serial.println();
   }
-if (stat == 0){
+if (stat == 0){ // if stat 0, control end-effector using x,y,z
   if (input == '4') {
     delay(10);
     x -= 3;
@@ -68,10 +68,10 @@ if (stat == 0){
     delay(10);
     pwm.setPWM(0, 0, angleToPulse(M1));
     M1 += 2;
-  } else if (input =='A'){
+  } else if (input =='A'){ // change mode to manually control each joint
   stat = 1;
 }
-else if (input =='B'){
+else if (input =='B'){ //change mode to IK
   stat = 0;
 }
 }
@@ -110,7 +110,7 @@ else if (input =='B'){
   delay(20);
 }
 
-void moveToPos(double x, double y, double z, double L1) {
+void moveToPos(double x, double y, double z, double L1) { 
   double a3 = acos((x * x + y * y - L1 * L1-L2*L2) / (2 * L1 * L2));
   double a2 = atan(x/y) - atan((L2*sin(a3)) / (L1+L2*cos(a3)));
   // Calculate the angles using inverse kinematics
@@ -147,7 +147,7 @@ void moveToAngle( double a2, double a3) {
   pwm.setPWM(2, 0, angleToPulse(a3+85));
 }
 
-int angleToPulse(double ang) {
+int angleToPulse(double ang) { //convert angle to pulse
   int pulse = map(ang, 0, 180, SERVOMIN, SERVOMAX);
   return pulse;
 }
